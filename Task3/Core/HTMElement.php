@@ -7,15 +7,23 @@ class HTMElement
 	public $content = array();
 
 
-	public function __construct($tag = "Unknown")
+	public function __construct($tag = "Unknown",$attr = "")
 	{
 		$this->tag = $tag;
+		$this->attr = $attr;
 	}
 
 	//print html, return bool
 	public function mPrint()
 	{
-		echo "<".$this->tag." ".$this->attr.">";
+		if(strlen($this->attr)==0)
+		{
+			echo "<".$this->tag.">";
+		}
+		else
+		{
+			echo "<".$this->tag." ".$this->attr.">";
+		}
 		foreach ($this->content as $val) {
 			if(is_string($val)) 
 				echo $val;
@@ -23,6 +31,18 @@ class HTMElement
 				$val->mPrint();
 		}
 		echo "</".$this->tag.">";
+	}
+	public function PrintTags($tags)
+	{
+		if(isset($tags[$this->tag]))
+			$tags[$this->tag] +=1;
+		else
+			$tags[$this->tag] = 1;
+		foreach ($this->content as $val) {
+			if(!is_string($val)) 
+				$tags = $val->PrintTags($tags);
+		}
+		return $tags;
 	}
 	//return array(tag,close,cur)
 	public function Parse($html,$current = 0)
@@ -53,8 +73,8 @@ class HTMElement
 								return [$tag,False, $current];
 							}
 						}
+
 						$el = HTMRoot::CreateElement($tag);
-						$current = $el->ParseTagAttr($html,$current);
 						//парсим значения на новом теге
 						$arr = $el->Parse($html,$current);
 						//добавляем елемент в список
@@ -74,8 +94,9 @@ class HTMElement
 								{
 									return [$tag,True,$current];
 								}
-								else//Если закрывается не известный тег
+								else//Если закрывается неизвестный тег
 								{
+									if($tag != "noindex")
 									return [$tag,False,$current];
 								}
 							}
@@ -94,25 +115,33 @@ class HTMElement
 		$tag = "";
 		$close = False;
 		if($html[$current]=="/") { $close = True; $current++; }
+		if($html[$current]=="!" && $html[$current+1] == "-" && $html[$current+2]=="-")
+			return $this->GetTagComment($html,$current);
 		for($current;$current<strlen($html);$current++ )
 		{
-			if($html[$current]==" " || $html[$current]==">")
+			if($html[$current]==">")
 				return [$tag,$close,$current];
 			$tag .=$html[$current];
 		}
 		return [$tag,$close,$current];
 	}
-	//return array(attr,cur)
-	protected function ParseTagAttr($html,$current)
+
+	protected function GetTagComment($html,$current)
 	{
-		$this->attr = "";
+		$tag = "";
 		for($current;$current<strlen($html);$current++ )
 		{
-			if($html[$current]==">")
-				return  $current;
-			$this->attr .= $html[$current];
+			if($html[$current-2]=="-" && $html[$current-1]=="-")
+			{
+				if($html[$current] == ">")
+				{
+					return [$tag,False,$current];
+				}
+			}
+			
+			$tag.=$html[$current];
 		}
-		return $current;
+		return [$tag,False,$current];
 	}
 }
 ?>

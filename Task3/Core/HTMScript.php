@@ -4,6 +4,7 @@ class HTMScript extends HTMNormal
 {
 	public function Parse($html,$current = 0)
 	{
+		if($html[$current]==">") $current++;
 		$text = "";
 		for($current;$current<strlen($html);$current++ )
 		{

@@ -4,22 +4,19 @@ class HTMComment extends HTMVoid
 {
 	public function mPrint()
 	{
-		
+		if(strlen($this->attr)==0)
+		{
+			echo "<".$this->tag.">";
+		}
+		else
+		{
+			echo "<".$this->tag." ".$this->attr.">";
+		}
 	}
 
-	protected function ParseTagAttr($html,$current)
+	public function PrintTags($tags)
 	{
-		
-		$this->attr = "";
-		for($current;$current<strlen($html);$current++ )
-		{
-			if($html[$current]=="-")
-				if($html[$current+1]=="-")
-					if($html[$current+2]==">")
-				return  $current+2;
-			//$this->attr .= $html[$current];
-		}
-		return $current;
+		return $tags;
 	}
 }
 ?>

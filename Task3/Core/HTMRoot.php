@@ -13,23 +13,46 @@ class HTMRoot extends HTMElement
 		}
 	}
 
+	public function PrintTags($tags)
+	{
+		foreach ($this->content as $val) {
+			if(!is_string($val)) 
+				$tags = $val->PrintTags($tags);
+		}
+		return $tags;
+	}
+
 	static public function CreateElement($tag)
 	{
+		$name = "";
+		$attr = "";
+		$i = 0;
+		for($i;$i<strlen($tag);$i++)
+		{
+			if($tag[$i]==" ")
+			{
+				for($i;$i<strlen($tag);$i++)
+				{
+					$attr.=$tag[$i];
+				}
+			}
+			else
+			{
+				$name .=$tag[$i];
+			}
+		}
+		//echo "$name<br>";
+		try { if($name[0]== "!" && $name[1]== "-" && $name[2]== "-"){ return new HTMComment($name,$attr);} }
+		catch(Exception $e) { }
+
 		require_once(__dir__."/HTMElement.php");
 		require_once(__dir__."/HTMComment.php");
 		require_once(__dir__."/HTMNormal.php");
 		require_once(__dir__."/HTMScript.php");
 		require_once(__dir__."/HTMVoid.php");
-		require_once(__dir__."/HTMCommentIfElse.php");
-		switch (strtolower($tag)) {
-			case '!--':
-					return new HTMComment($tag);
-				break;
-			case '!--[if':
-					return new HTMCommentIfElse($tag);
-				break;
+		switch (strtolower($name)) {
 			case 'script':
-					return new HTMScript($tag);
+					return new HTMScript($name,$attr);
 				break;
 			case 'area':
 			case 'base':
@@ -47,10 +70,10 @@ class HTMRoot extends HTMElement
 			case 'source':
 			case 'track':
 			case 'wbr':
-					return new HTMVoid($tag);
+					return new HTMVoid($name,$attr);
 				break;
 			default:
-					return new HTMNormal($tag);
+					return new HTMNormal($name,$attr);
 				break;
 		}
 	}

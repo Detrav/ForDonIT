@@ -4,11 +4,14 @@ class HTMVoid extends HTMElement
 {
 	public function mPrint()
 	{
-		echo "
-		";
-		echo "<".$this->tag." ".$this->attr.">";
-		echo "
-		";
+		if(strlen($this->attr)==0)
+		{
+			echo "<".$this->tag.">";
+		}
+		else
+		{
+			echo "<".$this->tag." ".$this->attr.">";
+		}
 	}
 
 	public function Parse($html,$current = 0)
