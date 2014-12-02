@@ -70,7 +70,7 @@ class HTMRoot extends HTMElement
 			case 'source':
 			case 'track':
 			case 'wbr':
-			case '!DOCTYPE':
+			case '!doctype':
 					return new HTMVoid(strtolower($name),$attr);
 				break;
 			default:
@@ -80,4 +80,5 @@ class HTMRoot extends HTMElement
 	}
 }
 ?>
+
 

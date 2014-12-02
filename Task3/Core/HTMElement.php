@@ -6,6 +6,8 @@ class HTMElement
 	public $attr = NULL;
 	public $content = array();
 	public $parent = NULL;
+	public $have_close = False;
+	public $extra_close = array();
 
 
 	public function __construct($tag = "Unknown",$attr = "")
@@ -29,10 +31,15 @@ class HTMElement
 	}
 	public function PrintTags($tags)
 	{
-		if(isset($tags[$this->tag]))
-			$tags[$this->tag] +=1;
-		else
-			$tags[$this->tag] = 1;
+		if(is_null($tags)) $tags= array();
+		if(!isset($tags[$this->tag])) $tags[$this->tag] = ["open"=>0,"close"=>0,"extra"=>0];
+
+			$tags[$this->tag]["open"] += 1;
+			if($this->have_close) $tags[$this->tag]["close"] +=1;
+		foreach ($this->extra_close as $val) {
+			if(!isset($tags[$val])) $tags[$val] = ["open"=>0,"close"=>0,"extra"=>0];
+			$tags[$val]["extra"] += 1;
+		}
 		foreach ($this->content as $val) {
 			if(!is_string($val)) 
 				$tags = $val->PrintTags($tags);
@@ -59,14 +66,16 @@ class HTMElement
 						if($close)//Тег закрывабщися
 						{
 							//Если закрывается текущий тег
-							if($tag == $this->tag)
+							if(strtolower($tag) == $this->tag)
 							{
+								$this->have_close = True;
 								return [$tag,True, $current];
 							}
 							else//Если закрывается не известный тег
 							{
-								if($this->ParentClose($tag))
+								if($this->ParentClose(strtolower($tag)))
 									return [$tag,False,$current];
+								$this->extra_close[]=$tag;
 							}
 						}
 						else
@@ -89,8 +98,9 @@ class HTMElement
 								else
 								{
 									//Если закрывается текущий тег
-									if($tag == $this->tag)
+									if(strtolower($tag) == $this->tag)
 									{
+										$this->have_close = True;
 										return [$tag,True,$current];
 									}
 									else//Если закрывается неизвестный тег
