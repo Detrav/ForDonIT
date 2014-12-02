@@ -5,6 +5,7 @@ class HTMElement
 	public $tag = NULL;
 	public $attr = NULL;
 	public $content = array();
+	public $parent = NULL;
 
 
 	public function __construct($tag = "Unknown",$attr = "")
@@ -16,14 +17,8 @@ class HTMElement
 	//print html, return bool
 	public function mPrint()
 	{
-		if(strlen($this->attr)==0)
-		{
-			echo "<".$this->tag.">";
-		}
-		else
-		{
-			echo "<".$this->tag." ".$this->attr.">";
-		}
+			echo "<".$this->tag.$this->attr.">";
+
 		foreach ($this->content as $val) {
 			if(is_string($val)) 
 				echo $val;
@@ -70,34 +65,38 @@ class HTMElement
 							}
 							else//Если закрывается не известный тег
 							{
-								return [$tag,False, $current];
+								if($this->ParentClose($tag))
+									return [$tag,False,$current];
 							}
 						}
-
-						$el = HTMRoot::CreateElement($tag);
-						//парсим значения на новом теге
-						$arr = $el->Parse($html,$current);
-						//добавляем елемент в список
-						$this->content[] = $el;
-						//получен конец тега, что дальше?
-						if($arr)
+						else
 						{
-							list($tag,$close,$current) = $arr;
-							if($close)
-							{
 
-							}
-							else
+							$el = HTMRoot::CreateElement($tag);
+							$el->parent = $this;
+							//парсим значения на новом теге
+							$arr = $el->Parse($html,$current);
+							//добавляем елемент в список
+							$this->content[] = $el;
+							//получен конец тега, что дальше?
+							if($arr)
 							{
-								//Если закрывается текущий тег
-								if($tag == $this->tag)
+								list($tag,$close,$current) = $arr;
+								if($close)
 								{
-									return [$tag,True,$current];
+
 								}
-								else//Если закрывается неизвестный тег
+								else
 								{
-									if($tag != "noindex")
-									return [$tag,False,$current];
+									//Если закрывается текущий тег
+									if($tag == $this->tag)
+									{
+										return [$tag,True,$current];
+									}
+									else//Если закрывается неизвестный тег
+									{
+										return [$tag,False,$current];
+									}
 								}
 							}
 						}
@@ -108,15 +107,19 @@ class HTMElement
 					break;
 			}
 		}
+		return [$tag,True,$current];
 	}
+
+
 	//return array(tag,close,cur)
 	protected function GetTagName($html,$current)
 	{
 		$tag = "";
 		$close = False;
 		if($html[$current]=="/") { $close = True; $current++; }
-		if($html[$current]=="!" && $html[$current+1] == "-" && $html[$current+2]=="-")
-			return $this->GetTagComment($html,$current);
+		try { if($html[$current]=="!" && $html[$current+1] == "-" && $html[$current+2]=="-")
+			return $this->GetTagComment($html,$current); }
+		catch(Exception $e) { }
 		for($current;$current<strlen($html);$current++ )
 		{
 			if($html[$current]==">")
@@ -142,6 +145,15 @@ class HTMElement
 			$tag.=$html[$current];
 		}
 		return [$tag,False,$current];
+	}
+
+
+	protected function ParentClose($tag)
+	{
+		if(is_null($this->parent)) return False;
+		if($this->parent->tag == $tag) return True;
+		return $this->parent->ParentClose($tag);
+		return False;
 	}
 }
 ?>

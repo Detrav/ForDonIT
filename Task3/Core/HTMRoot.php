@@ -29,7 +29,7 @@ class HTMRoot extends HTMElement
 		$i = 0;
 		for($i;$i<strlen($tag);$i++)
 		{
-			if($tag[$i]==" ")
+			if($tag[$i]==" " || $tag[$i]=="\n" || ($i>0 ? $tag[$i]=="/" : False))
 			{
 				for($i;$i<strlen($tag);$i++)
 				{
@@ -52,7 +52,7 @@ class HTMRoot extends HTMElement
 		require_once(__dir__."/HTMVoid.php");
 		switch (strtolower($name)) {
 			case 'script':
-					return new HTMScript($name,$attr);
+					return new HTMScript(strtolower($name),$attr);
 				break;
 			case 'area':
 			case 'base':
@@ -70,10 +70,11 @@ class HTMRoot extends HTMElement
 			case 'source':
 			case 'track':
 			case 'wbr':
-					return new HTMVoid($name,$attr);
+			case '!DOCTYPE':
+					return new HTMVoid(strtolower($name),$attr);
 				break;
 			default:
-					return new HTMNormal($name,$attr);
+					return new HTMNormal(strtolower($name),$attr);
 				break;
 		}
 	}

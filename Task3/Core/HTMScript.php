@@ -25,12 +25,25 @@ class HTMScript extends HTMNormal
 							}
 						}
 					}
-					break;
 				default:
 					$text.=$html[$current];
 					break;
 			}
 		}
+	}
+	protected function GetTagName($html,$current)
+	{
+		$tag = "";
+		$close = False;
+		$tmp = $current;
+		if($html[$tmp]=="/") { $close = True; $tmp++; }
+		for ($tmp; $tmp < $current+7; $tmp++) { 
+			$tag.=$html[$tmp];
+		}
+		if($tag == $this->tag)
+			return [$tag,$close,$tmp];
+
+		return [$tag,False,$current-1];
 	}
 }
 ?>
