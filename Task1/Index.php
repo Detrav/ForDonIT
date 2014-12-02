@@ -1,5 +1,7 @@
 <html>
-<head></head>
+<head>
+	<meta charset="utf-8">
+</head>
 <body>
 <?php
 require(__DIR__."/Core/SQLRepository.php");

@@ -4,7 +4,7 @@
 */
 class SQLRepository
 {
-	static protected $HostName = "localhost";
+	static protected $HostName = "192.168.1.25";
 	static protected $DataBaseName = "Ezepchuk_Task_1";
 	static protected $UserName = "root";
 	static protected $UserPass = "root";
