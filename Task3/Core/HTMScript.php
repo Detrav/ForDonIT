@@ -21,6 +21,7 @@ class HTMScript extends HTMNormal
 							if($tag == $this->tag)
 							{
 								$this->content[] = $text;
+								$this->have_close = True;
 								return [$tag,True,$current];
 							}
 						}
